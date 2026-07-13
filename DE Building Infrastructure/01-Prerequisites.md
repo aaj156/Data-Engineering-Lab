@@ -98,7 +98,219 @@ Expected Output
 Distributor ID: Ubuntu
 Description: Ubuntu 24.04 LTS
 ```
+# If SYstem is not having Ubuntu 24.0.xx LTS
+# Appendix A: Upgrading Ubuntu 20.04 LTS to Ubuntu 24.04 LTS
 
+> **Important**
+>
+> Ubuntu 24.04 LTS provides better support for modern Data Engineering tools such as Java 21, Apache NiFi 2.x, Apache Airflow 2.x/3.x, Docker, Kubernetes, and the latest PostgreSQL releases.
+>
+> Students using Ubuntu 20.04 LTS are strongly encouraged to upgrade before beginning the laboratory exercises.
+
+---
+
+# A.1 Check Current Ubuntu Version
+
+Open Terminal.
+
+```bash
+lsb_release -a
+```
+
+or
+
+```bash
+cat /etc/os-release
+```
+
+Expected Output
+
+```text
+Ubuntu 20.04 LTS
+```
+
+---
+
+# A.2 Backup Important Files
+
+Before upgrading, back up:
+
+- Documents
+- Downloads
+- Projects
+- SSH Keys
+- PostgreSQL Databases (if any)
+- Virtual Machines
+- Source Code
+
+It is also recommended to create a system restore image.
+
+---
+
+# A.3 Update Existing Packages
+
+```bash
+sudo apt update
+```
+
+```bash
+sudo apt upgrade -y
+```
+
+```bash
+sudo apt full-upgrade -y
+```
+
+Remove unnecessary packages.
+
+```bash
+sudo apt autoremove -y
+```
+
+```bash
+sudo apt autoclean
+```
+
+---
+
+# A.4 Reboot the System
+
+```bash
+sudo reboot
+```
+
+---
+
+# A.5 Ensure Update Manager is Installed
+
+```bash
+sudo apt install update-manager-core
+```
+
+---
+
+# A.6 Verify Release Upgrade Configuration
+
+Open
+
+```bash
+sudo nano /etc/update-manager/release-upgrades
+```
+
+Ensure
+
+```text
+Prompt=lts
+```
+
+Save and Exit.
+
+---
+
+# A.7 Start the Upgrade
+
+Run
+
+```bash
+sudo do-release-upgrade
+```
+
+If Ubuntu reports:
+
+```text
+No new release found.
+```
+
+use
+
+```bash
+sudo do-release-upgrade -d
+```
+
+> **Note:** Ubuntu 20.04 LTS upgrades first to Ubuntu 22.04 LTS. After completing that upgrade, repeat the process to upgrade from Ubuntu 22.04 LTS to Ubuntu 24.04 LTS.
+
+---
+
+# A.8 During Upgrade
+
+Ubuntu will ask several questions.
+
+### Replace Configuration File?
+
+Recommended
+
+```
+Keep the currently installed version
+```
+
+unless you have modified it.
+
+---
+
+### Restart Services?
+
+Select
+
+```
+Yes
+```
+
+---
+
+### Remove Obsolete Packages?
+
+Select
+
+```
+Yes
+```
+
+---
+
+# A.9 Reboot
+
+After the upgrade completes,
+
+```bash
+sudo reboot
+```
+
+---
+
+# A.10 Verify Upgrade
+
+```bash
+lsb_release -a
+```
+
+Expected Output
+
+```text
+Distributor ID: Ubuntu
+
+Description: Ubuntu 24.04 LTS
+
+Release: 24.04
+```
+
+---
+
+# A.11 Verify Kernel
+
+```bash
+uname -r
+```
+
+---
+
+# A.12 Update Again
+
+```bash
+sudo apt update
+```
+
+```bash
+sudo apt upgrade -y
 ---
 
 # 📦 Step 1 – Update Ubuntu
