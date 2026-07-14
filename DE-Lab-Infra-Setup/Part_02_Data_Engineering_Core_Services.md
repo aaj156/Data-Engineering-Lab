@@ -247,6 +247,7 @@ Execute the following PostgreSQL meta-command to display all existing roles (dat
 
 ```bash
 \du
+```
 ---
 
 # 📦 Connect to Database
@@ -689,13 +690,3 @@ Verify that the generated report is saved under:
 ```
 
 ---
-
-# Part 02 Status
-
-Installation Status : ☐ Completed
-
-Verified By : ______________________
-
-Date : _____________________________
-
-Remarks : __________________________
