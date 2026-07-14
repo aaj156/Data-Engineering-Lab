@@ -239,7 +239,6 @@ CREATE ROLE student LOGIN PASSWORD '123';
 # 📦 Grant Privileges
 
 ```sql
-GRANT ALL PRIVILEGES ON DATABASE dataengineering TO student;
 GRANT ALL PRIVILEGES ON DATABASE dataengineering TO deuser;
 ```
 ### List Existing PostgreSQL Roles
@@ -254,8 +253,41 @@ Execute the following PostgreSQL meta-command to display all existing roles (dat
 # 📦 Connect to Database
 
 ```sql
+\c dataengineering
+```
+---
+This simply changes the current database while staying connected as the postgres role. It avoids the peer authentication issue during the installation exercise.
+
+Note: Switching to another PostgreSQL role using \c database role may fail on Ubuntu/WSL because local connections typically use peer authentication, which requires the Linux username to match the PostgreSQL role. Client applications such as pgAdmin, Python, Apache NiFi, and Apache Airflow connect using TCP/IP (localhost:5432) and authenticate using the role's password instead.
+---
+Note
+
+On Ubuntu/WSL, the command:
+```sql
 \c dataengineering deuser
 ```
+may fail with:
+FATAL: Peer authentication failed for user "deuser"
+because local Unix socket connections use peer authentication, which requires the Linux username to match the PostgreSQL role name.
+
+To authenticate using the password assigned to the PostgreSQL role, connect through TCP/IP (localhost).
+Exit the PostgreSQL Interactive Terminal
+If you are currently inside the PostgreSQL prompt (postgres=#), exit using:
+
+\q
+Command
+Execute the following command from the Ubuntu Terminal:
+```sql
+psql -h localhost -U deuser -d dataengineering
+```
+Expected Output
+The terminal prompts for the PostgreSQL password:
+Password:
+Enter the password assigned while creating the role (for example, 123).
+After successful authentication, the PostgreSQL prompt appears:
+
+dataengineering=>
+
 ### Verification
 
 ```sql
