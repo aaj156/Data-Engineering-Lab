@@ -198,7 +198,7 @@ postgres=#
 ## Step A7 : Change postgres Password
 
 ```sql
-ALTER USER postgres PASSWORD 'your_password';
+ALTER USER postgres PASSWORD 'siesgst';
 ```
 
 ---
