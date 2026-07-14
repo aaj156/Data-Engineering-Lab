@@ -379,6 +379,9 @@ exit
 /etc/postgresql/16/main/postgresql.conf
 /etc/postgresql/16/main/pg_hba.conf
 ```
+```bash
+cd /etc/postgresql/16/main/
+```
 
 # Edit only if remote access is required.
 ## For More information on these file read bellow but DONT OPEN or EDIT any CONFIGURSTION FILE
