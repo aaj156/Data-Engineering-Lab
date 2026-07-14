@@ -76,16 +76,39 @@ psql (PostgreSQL) 16.x
 pg_lsclusters
 ```
 
-Expected:
+### Expected Output
 
 ```text
-16 main online
+Ver Cluster Port Status Owner
+16  main    5432 online postgres
 ```
 
-If offline:
+### Decision
+
+- ✅ If **Status = online**, continue to the next step.
+- ⚠️ If **Status = down**, start the cluster:
 
 ```bash
 sudo pg_ctlcluster 16 main start
+```
+
+Verify again:
+
+```bash
+pg_lsclusters
+```
+
+- ❌ If no cluster is listed, create the default cluster:
+
+```bash
+sudo pg_createcluster 16 main
+sudo pg_ctlcluster 16 main start
+```
+
+Then verify again using:
+
+```bash
+pg_lsclusters
 ```
 
 ---
