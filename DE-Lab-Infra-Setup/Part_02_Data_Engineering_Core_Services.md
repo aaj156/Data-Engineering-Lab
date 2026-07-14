@@ -349,7 +349,9 @@ Expected Output
 ```
 
 Then reconnect using the `postgres` role or any other with appropriate password for that to verify the new password when prompted by a client application such as pgAdmin.
-
+```sql
+psql -h localhost -U postgres -d postgres
+```
 ---
 
 ## Step A8 : Check Lab Database
