@@ -192,22 +192,133 @@ Expected
 ```text
 postgres=#
 ```
-
+```sql
+\l
+```
+No Database is presently available
 ---
 
-## Step A7 : Change postgres Password
+## Step A7 : Set Password for the PostgreSQL Administrator Role
+
+### Objective
+
+Assign a password to the default **PostgreSQL administrator role (`postgres`)**. This password will be used later when connecting to PostgreSQL from applications such as **pgAdmin 4, Python, Apache NiFi, Apache Airflow, JDBC, and other database clients**.
+
+> **Important**
+>
+> This command **does not change the Ubuntu (Linux) user's password**. It changes only the password of the **PostgreSQL database administrator role**.
+
+### Command
 
 ```sql
-ALTER USER postgres PASSWORD 'siesgst';
+ALTER ROLE postgres WITH PASSWORD 'siesgst';
+```
+
+### Expected Output
+
+```text
+ALTER ROLE
+```
+# 📦 Create New Database
+
+```sql
+CREATE DATABASE dataengineering;
 ```
 
 ---
 
-## Step A8 : Create Lab Database
+# 📦 Create New User
 
 ```sql
-CREATE DATABASE dataeng_lab;
+CREATE USER deuser WITH PASSWORD '123';
+CREATE ROLE student LOGIN PASSWORD '123';
 ```
+
+---
+
+# 📦 Grant Privileges
+
+```sql
+GRANT ALL PRIVILEGES ON DATABASE dataengineering TO student;
+```
+### List Existing PostgreSQL Roles
+
+Execute the following PostgreSQL meta-command to display all existing roles (database users):
+
+```bash
+\du
+---
+
+# 📦 Connect to Database
+
+```sql
+\c dataengineering deuser
+```
+### Verification
+
+```sql
+\conninfo
+```
+
+Expected Output
+
+```text
+You are connected to database "dataengineering"
+```
+---
+
+# 📦 Create Sample Table
+
+```sql
+CREATE TABLE students(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    department VARCHAR(50),
+    marks INT
+);
+```
+
+---
+
+# 📦 Insert Sample Records
+
+```sql
+INSERT INTO students(name, department, marks)
+VALUES
+('Amol','AIDS',95),
+('Rahul','CE',85),
+('Sneha','IT',90);
+```
+
+---
+
+# 📦 Retrieve Records
+
+```sql
+SELECT * FROM students;
+```
+
+Expected Output
+
+| id | name | department | marks |
+|----|------|------------|-------|
+| 1 | Akshay | AIDS | 90 |
+| 2 | Rahul | AIDS | 85 |
+| 3 | Sneha | AIDS | 95 |
+
+---
+
+# 📦 Exit the PostgreSQL prompt:
+
+```sql
+\q
+```
+
+Then reconnect using the `postgres` role or any other with appropriate password for that to verify the new password when prompted by a client application such as pgAdmin.
+
+---
+
+## Step A8 : Check Lab Database
 
 Verify
 
@@ -233,7 +344,89 @@ exit
 /etc/postgresql/16/main/pg_hba.conf
 ```
 
-Edit only if remote access is required.
+# Edit only if remote access is required.
+## For More information on these file read bellow but DONT OPEN or EDIT any CONFIGURSTION FILE
+## PostgreSQL Configuration Files
+
+PostgreSQL stores its server configuration in two important files:
+
+```text
+/etc/postgresql/16/main/postgresql.conf
+/etc/postgresql/16/main/pg_hba.conf
+```
+
+### 1. `postgresql.conf`
+
+This is the **main PostgreSQL server configuration file**.
+
+It is used to configure server-level settings such as:
+
+- Server listening address
+- Port number
+- Memory allocation
+- Logging configuration
+- Connection limits
+- Performance tuning parameters
+
+Open the file using:(DONT OPEN)
+
+```bash
+sudo nano /etc/postgresql/16/main/postgresql.conf
+```
+
+### Common Configuration Parameters
+
+```text
+listen_addresses = 'localhost'
+port = 5432
+max_connections = 100
+```
+
+> **Note:** For this experiment, the default configuration is sufficient. No changes are required.
+
+---
+
+### 2. `pg_hba.conf`
+
+This file controls **client authentication** and determines **who can connect to PostgreSQL, from where, and using which authentication method**.
+
+Open the file using:(DONT OPEN)
+
+```bash
+sudo nano /etc/postgresql/16/main/pg_hba.conf
+```
+
+Typical default entries:
+
+```text
+local   all             postgres                                peer
+local   all             all                                     peer
+host    all             all             127.0.0.1/32            scram-sha-256
+host    all             all             ::1/128                 scram-sha-256
+```
+
+---
+
+## When Should These Files Be Modified?
+
+For this laboratory setup, PostgreSQL will be accessed locally from the same Ubuntu WSL environment.
+
+Therefore, **no modifications are required**.
+
+These configuration files should only be modified when:
+
+- Allowing remote connections from another computer.
+- Changing the default PostgreSQL port.
+- Configuring a different authentication method.
+- Optimizing PostgreSQL performance.
+- Restricting or expanding client access.
+
+---
+
+## Decision
+
+- ✅ **For this experiment:** Keep both configuration files unchanged.
+- ⚠️ Modify these files only when remote access or advanced PostgreSQL configuration is required in later experiments.
 
 ---
 
