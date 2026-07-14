@@ -240,6 +240,7 @@ CREATE ROLE student LOGIN PASSWORD '123';
 
 ```sql
 GRANT ALL PRIVILEGES ON DATABASE dataengineering TO student;
+GRANT ALL PRIVILEGES ON DATABASE dataengineering TO deuser;
 ```
 ### List Existing PostgreSQL Roles
 
