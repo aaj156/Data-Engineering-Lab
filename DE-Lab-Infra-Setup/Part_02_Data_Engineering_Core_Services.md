@@ -113,16 +113,56 @@ pg_lsclusters
 
 ---
 
-## Step A4 : Verify Service
+# Step A4 : Verify PostgreSQL Service
+
+## Command
 
 ```bash
 systemctl status postgresql
 ```
 
-If systemd is unavailable in WSL:
+### Expected Output
+
+```text
+Active: active (running)
+```
+
+### Decision
+
+- ✅ If the PostgreSQL service is **active (running)**, continue to the next step.
+
+- ⚠️ If the following message is displayed:
+
+```text
+System has not been booted with systemd as init system.
+Can't operate.
+Failed to connect to bus.
+```
+
+it indicates that **systemd is not managing services in the current WSL instance**.
+
+In this case, verify PostgreSQL using:
 
 ```bash
 sudo pg_ctlcluster 16 main status
+```
+
+If the cluster is not running, start it using:
+
+```bash
+sudo pg_ctlcluster 16 main start
+```
+
+Verify again:
+
+```bash
+sudo pg_ctlcluster 16 main status
+```
+
+### Expected Output
+
+```text
+pg_ctl: server is running
 ```
 
 ---
