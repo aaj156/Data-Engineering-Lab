@@ -157,3 +157,7 @@ echo
 echo "Log File:"
 echo "$LOGFILE"
 echo "============================================================"
+
+ grep -i "Generated Password" ~/Mini-ETL-NiFi-PostgreSQL/software/nifi/logs/nifi-app.log
+ grep -i "Generated Username" ~/Mini-ETL-NiFi-PostgreSQL/
+software/nifi/logs/nifi-app.log
