@@ -184,6 +184,112 @@ Processor settings:
   Record Reader              JsonTreeReader
 
 ------------------------------------------------------------------------
+# Step 10 – Configure PutDatabaseRecord
+
+After adding the **PutDatabaseRecord** processor to the canvas, configure its database connection.
+
+## Step 10.1 – Open Processor Properties
+
+1. Double-click **PutDatabaseRecord**.
+2. Open the **Properties** tab.
+3. Locate **Database Connection Pooling Service**.
+
+Initially this field will be empty.
+
+---
+
+## Step 10.2 – Create a DBCPConnectionPool
+
+1. Click the drop-down beside **Database Connection Pooling Service**.
+2. Select **Create New Service**.
+3. From the list, choose **DBCPConnectionPool**.
+4. Click **Create**.
+
+A new controller service is created.
+
+---
+
+## Step 10.3 – Open the Controller Service
+
+Click the **Go To Service (⚡)** icon beside the newly created service or double-click the service name.
+
+Open the **Properties** tab.
+
+---
+
+## Step 10.4 – Configure the Database Connection
+
+Fill the following values:
+
+| Property | Value |
+|----------|-------|
+| Database Connection URL | jdbc:postgresql://localhost:5432/etl_lab |
+| Database Driver Class Name | org.postgresql.Driver |
+| Database User | etluser |
+| Password | etl@123 |
+
+### Database Driver Location
+
+Locate **Database Driver Location(s)** and enter the full path of the PostgreSQL JDBC driver.
+
+Example:
+
+```text
+/home/<username>/Mini-ETL-NiFi-PostgreSQL/software/postgresql-42.7.7.jar
+```
+
+Example for the laboratory user:
+
+```text
+/home/dataeng/Mini-ETL-NiFi-PostgreSQL/software/postgresql-42.7.7.jar
+```
+
+Click **Apply**.
+
+---
+
+## Step 10.5 – Enable the Controller Service
+
+Return to the Controller Services page.
+
+Click **Enable (⚡)**.
+
+Wait until the status changes to **Enabled** (green).
+
+---
+
+## Step 10.6 – Configure PutDatabaseRecord
+
+Return to the **PutDatabaseRecord** processor and set:
+
+| Property | Value |
+|----------|-------|
+| Database Connection Pooling Service | DBCPConnectionPool |
+| Table Name | products |
+| Statement Type | INSERT |
+| Record Reader | JsonTreeReader |
+
+Click **Apply**.
+
+---
+
+## Step 10.7 – Verify the Connection
+
+Start the processor.
+
+If configured correctly:
+
+- No red error icon is displayed.
+- The processor enters the **Running** state.
+- Records are inserted into the **products** table.
+
+If the processor fails, verify:
+
+- PostgreSQL is running.
+- The `etl_lab` database exists.
+- Username and password are correct.
+- The JDBC driver JAR exists at the configured location.
+- The JDBC URL is correct.
 
 # Step 11 -- Connect Processors
 
