@@ -1100,9 +1100,170 @@ In this section you learned how to:
 # Next Part
 
 **PART B.3 -- Creating `loader.py` and `exporter.py`**
+# Module 1 -- `loader.py`
 
-You will connect Python to MongoDB, implement incremental loading using
-Upsert, and export processed data to JSON and CSV.
+## Step 1 -- Create the file
+
+``` bash
+nano loader.py
+```
+
+## Step 2 -- Code
+
+``` python
+from pymongo import MongoClient
+from config import MONGO_URI, DATABASE, COLLECTION
+
+def load_products(products):
+    client = MongoClient(MONGO_URI)
+    db = client[DATABASE]
+    collection = db[COLLECTION]
+
+    for product in products:
+        collection.replace_one(
+            {"_id": product["_id"]},
+            product,
+            upsert=True
+        )
+
+    print(f"Loaded {len(products)} products into MongoDB.")
+    client.close()
+
+if __name__ == "__main__":
+    print("Run products_etl.py to load products.")
+```
+
+### Explanation
+
+-   `MongoClient()` connects to MongoDB.
+-   `db[COLLECTION]` selects the collection.
+-   `replace_one(..., upsert=True)` updates existing documents or
+    inserts new ones.
+-   `client.close()` closes the database connection.
+
+### Verification
+
+``` bash
+python3 -c "from loader import load_products; print('loader.py imported successfully')"
+```
+
+### Verify in MongoDB
+
+``` bash
+mongosh
+```
+
+``` javascript
+use ProductDB
+show collections
+db.products.countDocuments()
+db.products.findOne()
+```
+
+------------------------------------------------------------------------
+
+# Module 2 -- `exporter.py`
+
+## Step 1 -- Create the file
+
+``` bash
+nano exporter.py
+```
+
+## Step 2 -- Code
+
+``` python
+import os
+import json
+import pandas as pd
+
+OUTPUT_DIR = "output"
+
+def export_json(products):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    with open(f"{OUTPUT_DIR}/products.json", "w") as f:
+        json.dump(products, f, indent=4)
+
+def export_csv(products):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    pd.DataFrame(products).to_csv(
+        f"{OUTPUT_DIR}/products.csv",
+        index=False
+    )
+
+if __name__ == "__main__":
+    print("Run products_etl.py to export products.")
+```
+
+### Explanation
+
+-   Creates the `output` directory automatically.
+-   Exports formatted JSON using `json.dump()`.
+-   Exports CSV using `pandas.DataFrame.to_csv()`.
+
+### Verification
+
+``` bash
+python3 -c "from exporter import export_json, export_csv; print('exporter.py imported successfully')"
+```
+
+Expected output:
+
+    exporter.py imported successfully
+
+### Verify Output
+
+``` bash
+ls output
+```
+
+Expected:
+
+    products.json
+    products.csv
+
+------------------------------------------------------------------------
+
+# Common Errors
+
+  Error                       Solution
+  --------------------------- -----------------------
+  pymongo not installed       `pip install pymongo`
+  pandas not installed        `pip install pandas`
+  MongoDB connection failed   Start MongoDB service
+  output directory missing    Created automatically
+
+------------------------------------------------------------------------
+
+# Integration Flow
+
+``` text
+config.py
+   ↓
+extractor.py
+   ↓
+validator.py
+   ↓
+transformer.py
+   ↓
+loader.py
+   ↓
+exporter.py
+   ↓
+products_etl.py
+```
+
+------------------------------------------------------------------------
+
+# Checkpoint
+
+-   [ ] loader.py created
+-   [ ] exporter.py created
+-   [ ] MongoDB connection verified
+-   [ ] JSON export verified
+-   [ ] CSV export verified
+
+------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
 
