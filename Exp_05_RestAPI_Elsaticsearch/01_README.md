@@ -106,146 +106,301 @@ pip --version
 
 ---
 
-## Step 3 – Create Project Folder
 
-```text
-DataEngineeringLab/
-    Experiment05_REST_API/
+# Step 1: Create Project Directory
+
+Create a new project folder.
+
+```bash
+mkdir Exp5_API_MongoD
+cd Exp5_API_MongoD
 ```
 
-Open the folder in VS Code.
+**Explanation**
+
+- `mkdir` creates a new directory.
+- `cd` moves into the project directory.
 
 ---
 
-## Step 4 – Create Virtual Environment
-
-Windows
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-Linux
+# Step 2: Create Python Virtual Environment
 
 ```bash
 python3 -m venv venv
+```
+
+Activate the virtual environment.
+
+```bash
 source venv/bin/activate
 ```
 
-Expected:
+**Explanation**
 
-```
-(venv)
+A virtual environment isolates project-specific Python packages from the system Python installation.
+
+Expected prompt
+
+```text
+(venv) user@ubuntu:~/Exp5_API_MongoD$
 ```
 
 ---
 
-## Step 5 – Install Packages
+# Step 3: Install Required Python Packages
 
 ```bash
 pip install fastapi uvicorn pymongo elasticsearch pydantic
 ```
 
-Create `requirements.txt`
+**Explanation**
 
+| Package | Purpose |
+|---------|---------|
+| FastAPI | REST API Framework |
+| Uvicorn | ASGI Web Server |
+| PyMongo | MongoDB Connectivity |
+| Elasticsearch | Elasticsearch Python Client |
+| Pydantic | Data Validation |
+
+---
+
+# Step 4: Verify Installed Packages
+
+```bash
+pip list
 ```
-fastapi
-uvicorn
-pymongo
-elasticsearch
-pydantic
+
+Displays all installed packages.
+
+```bash
+pip freeze
+```
+
+Displays installed packages with versions.
+
+---
+
+# Step 5: Create requirements.txt
+
+```bash
+pip freeze > requirements.txt
+```
+
+**Explanation**
+
+Stores all project dependencies.
+
+Verify
+
+```bash
+cat requirements.txt
 ```
 
 ---
 
-# 7. MongoDB Setup
+# Step 6: Verify MongoDB Installation
 
-## Check Installation
+Check MongoDB Server
 
 ```bash
 mongod --version
 ```
 
-If not installed:
+Check MongoDB Shell
 
-1. Download MongoDB Community Server.
-2. Install MongoDB Compass.
-3. Install MongoDB as Windows Service.
-
-Verify service is running.
-
-Open Compass:
-
+```bash
+mongosh --version
 ```
-mongodb://localhost:27017
+
+Check MongoDB Service
+
+```bash
+sudo systemctl status mongod
+```
+
+Expected
+
+```text
+Active: active (running)
 ```
 
 ---
 
-# 8. Elasticsearch Setup
+# Step 7: Verify MongoDB Connection
 
-## Check Installation
+Open MongoDB Shell
 
 ```bash
-elasticsearch --version
+mongosh
 ```
 
-If not installed:
+Exit
 
-1. Download Elasticsearch ZIP.
-2. Extract.
-3. Edit:
-
-```
-config/elasticsearch.yml
+```javascript
+exit
 ```
 
-Ensure:
+Verify MongoDB Port
+
+```bash
+ss -tln | grep 27017
+```
+
+Expected
+
+```text
+127.0.0.1:27017
+```
+
+---
+
+# Step 8: Install Elasticsearch
+
+## Add Elastic Repository
+
+```bash
+sudo apt update
+sudo apt install curl wget gnupg apt-transport-https -y
+```
+
+Import GPG Key
+
+```bash
+curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | \
+sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+```
+
+Add Repository
+
+```bash
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" | \
+sudo tee /etc/apt/sources.list.d/elastic-9.x.list
+```
+
+Update Repository
+
+```bash
+sudo apt update
+```
+
+Install Elasticsearch
+
+```bash
+sudo apt install elasticsearch -y
+```
+
+---
+
+# Step 9: Start Elasticsearch
+
+Reload Services
+
+```bash
+sudo systemctl daemon-reload
+```
+
+Enable Service
+
+```bash
+sudo systemctl enable elasticsearch
+```
+
+Start Service
+
+```bash
+sudo systemctl start elasticsearch
+```
+
+Check Status
+
+```bash
+sudo systemctl status elasticsearch
+```
+
+Expected
+
+```text
+Active: active (running)
+```
+
+---
+
+# Step 10: Configure Elasticsearch
+
+Open Configuration File
+
+```bash
+sudo nano /etc/elasticsearch/elasticsearch.yml
+```
+
+Add
 
 ```yaml
 network.host: localhost
 http.port: 9200
+
+xpack.security.enabled: false
+xpack.security.http.ssl.enabled: false
+xpack.security.transport.ssl.enabled: false
 ```
 
-Start Elasticsearch.
-
-Windows
+Restart Elasticsearch
 
 ```bash
-bin\elasticsearch.bat
-```
-
-Linux
-
-```bash
-./bin/elasticsearch
+sudo systemctl restart elasticsearch
 ```
 
 Verify
 
+```bash
+curl http://localhost:9200
 ```
-http://localhost:9200
+
+Expected
+
+```json
+{
+  "name":"...",
+  "cluster_name":"elasticsearch"
+}
 ```
 
 ---
 
-# 9. Create Files
+# Step 11: Create Project Files
 
-Create
-
+```bash
+touch app.py database.py elastic.py models.py
 ```
+
+Verify
+
+```bash
+ls
+```
+
+Expected
+
+```text
 app.py
 database.py
 elastic.py
 models.py
+requirements.txt
 ```
 
 ---
 
-# 10. MongoDB Connection
+# Step 12: Create MongoDB Connection
 
-Create `database.py`
+Open
+
+```bash
+nano database.py
+```
+
+Paste
 
 ```python
 from pymongo import MongoClient
@@ -255,86 +410,208 @@ client = MongoClient("mongodb://localhost:27017")
 db = client["college"]
 
 students = db["students"]
+
+print("Connected to MongoDB Successfully")
 ```
 
-**Note**
+Run
 
-MongoDB creates the database and collection automatically after the first insert.
+```bash
+python database.py
+```
+
+Expected
+
+```text
+Connected to MongoDB Successfully
+```
 
 ---
 
-# 11. Data Model
+# Step 13: Create Student Model
 
-Create `models.py`
+Open
+
+```bash
+nano models.py
+```
+
+Paste
 
 ```python
 from pydantic import BaseModel
 
 class Student(BaseModel):
-    roll:int
-    name:str
-    branch:str
-    marks:float
+    roll: int
+    name: str
+    branch: str
+    marks: float
 ```
 
 ---
 
-# 12. Elasticsearch Connection
+# Step 14: Create Elasticsearch Connection
 
-Create `elastic.py`
+Open
+
+```bash
+nano elastic.py
+```
+
+Paste
 
 ```python
 from elasticsearch import Elasticsearch
 
 es = Elasticsearch("http://localhost:9200")
+
+if es.ping():
+    print("Connected to Elasticsearch Successfully")
+else:
+    print("Failed to connect to Elasticsearch")
+```
+
+Run
+
+```bash
+python elastic.py
 ```
 
 ---
 
-# 13. FastAPI Application
+# Step 15: Create FastAPI Application
 
-Create `app.py`
+Open
 
-```python
-from fastapi import FastAPI
-from models import Student
-from database import students
-from elastic import es
+```bash
+nano app.py
+```
 
-app = FastAPI()
+Paste the FastAPI application code provided in the experiment.
 
-@app.get("/")
-def home():
-    return {"message":"REST API Server Running"}
+---
 
-@app.post("/students")
-def add_student(student: Student):
-    data = student.model_dump()
-    students.insert_one(data)
-    es.index(index="students", document=data)
-    return {"message":"Inserted Successfully"}
+# Step 16: Run FastAPI Server
 
-@app.get("/students")
-def get_students():
-    result=[]
-    for s in students.find({}, {"_id":0}):
-        result.append(s)
-    return result
+```bash
+uvicorn app:app --reload
+```
 
-@app.get("/search/{name}")
-def search(name:str):
-    query={
-        "query":{
-            "match":{
-                "name":name
-            }
-        }
-    }
-    res=es.search(index="students", body=query)
-    return res["hits"]["hits"]
+Expected
+
+```text
+INFO: Uvicorn running on http://127.0.0.1:8000
 ```
 
 ---
+
+# Step 17: Open Swagger UI
+
+Open Browser
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Test the APIs
+
+- GET /
+- POST /students
+- GET /students
+- GET /search/{name}
+
+---
+
+# Step 18: Verify MongoDB Data
+
+Open MongoDB Shell
+
+```bash
+mongosh
+```
+
+Select Database
+
+```javascript
+use college
+```
+
+Display Data
+
+```javascript
+db.students.find().pretty()
+```
+
+---
+
+# Step 19: Verify Elasticsearch Data
+
+List Indices
+
+```bash
+curl http://localhost:9200/_cat/indices?v
+```
+
+Search Documents
+
+```bash
+curl http://localhost:9200/students/_search?pretty
+```
+
+---
+
+# Common Errors
+
+### MongoDB not installed
+
+```text
+mongod: command not found
+```
+
+Install MongoDB Community Server.
+
+---
+
+### Elasticsearch not installed
+
+```text
+Unable to locate package elasticsearch
+```
+
+Add the Elastic repository before installing.
+
+---
+
+### Elasticsearch connection failed
+
+```text
+Failed to connect to Elasticsearch
+```
+
+Ensure Elasticsearch service is running.
+
+```bash
+sudo systemctl status elasticsearch
+```
+
+---
+
+### Python code entered in Terminal
+
+Incorrect
+
+```bash
+from pymongo import MongoClient
+```
+
+Correct
+
+Write Python code inside `.py` files and execute using
+
+```bash
+python filename.py
+```
+#################################
 
 # 14. Run Server
 
