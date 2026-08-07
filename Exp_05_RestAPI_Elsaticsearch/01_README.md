@@ -171,6 +171,7 @@ pip install fastapi uvicorn pymongo elasticsearch pydantic
 pip list
 ```
 ```
+Output displayed like this 
 Package           Version
 ----------------- -----------
 annotated-doc     0.0.5
@@ -205,6 +206,7 @@ Displays all installed packages.
 pip freeze
 ```
 ```
+Output displayed like this 
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.14.2
