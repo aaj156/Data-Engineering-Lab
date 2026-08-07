@@ -277,7 +277,142 @@ Expected
 ```text
 Active: active (running)
 ```
+# Case 1 – MongoDB Service Not Running
 
+## Step 1: Check MongoDB Service Status
+
+Run:
+
+```bash
+sudo systemctl status mongod
+```
+
+Example Output:
+
+```text
+inactive (dead)
+```
+
+### Meaning
+
+The MongoDB Server is installed, but the service is **not currently running**.
+
+---
+
+## Step 2: Start MongoDB Service
+
+```bash
+sudo systemctl start mongod
+```
+
+---
+
+## Step 3: Enable MongoDB to Start Automatically at Boot
+
+```bash
+sudo systemctl enable mongod
+```
+
+---
+
+## Step 4: Verify the Service
+
+```bash
+sudo systemctl status mongod
+```
+
+Expected Output:
+
+```text
+Active: active (running)
+```
+
+---
+
+# Case 2 – Port 27017 Already in Use
+
+MongoDB listens on **port 27017** by default.
+
+## Step 1: Check Whether MongoDB is Listening
+
+Run:
+
+```bash
+ss -tln | grep 27017
+```
+
+Expected Output:
+
+```text
+LISTEN ... 127.0.0.1:27017
+```
+
+### Meaning
+
+- If you see the above output, MongoDB is already listening on port **27017**.
+- If no output appears, the MongoDB service is not running.
+
+---
+
+## Step 2: Start MongoDB Service
+
+```bash
+sudo systemctl start mongod
+```
+
+---
+
+## Step 3: Verify Again
+
+```bash
+ss -tln | grep 27017
+```
+
+---
+
+# Case 3 – Connection Refused
+
+If running:
+
+```bash
+mongosh
+```
+
+produces an error similar to:
+
+```text
+connection refused
+```
+
+### Meaning
+
+The MongoDB Shell is installed, but it cannot connect because the MongoDB Server is **not running**.
+
+---
+
+## Step 1: Check MongoDB Service
+
+```bash
+sudo systemctl status mongod
+```
+
+---
+
+## Step 2: If the Service is Stopped, Start It
+
+```bash
+sudo systemctl start mongod
+```
+
+---
+
+## Step 3: Connect Again
+
+```bash
+mongosh
+```
+
+If the MongoDB prompt appears, the issue has been resolved.
 ---
 
 # Step 7: Verify MongoDB Connection
