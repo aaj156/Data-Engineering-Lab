@@ -678,24 +678,24 @@ nano app.py
 from fastapi import FastAPI
 from models import Student
 from database import students
-from elastic import es.py
- 1029  nano database.py
-app = FastAPI()els.py
- 1031  nano app.py
- 1032  uvicorn app:app --reload
-@app.get("/")astic.py
-def home(): elastic.py
+from elastic import es
+
+app = FastAPI()
+
+
+@app.get("/")
+def home():
     return {"message": "REST API Server Running"}
- 1036  sudo systemctl status elasticsearch
- 1037  uvicorn app:app --reload
+
+
 @app.post("/students")
-def add_student(student: Student):students/_search?pretty
- 1040  nano elastic.py
+def add_student(student: Student):
+
     data = student.model_dump()
- 1042  uvicorn app:app --reload
+
     # Insert into MongoDB
     mongo_result = students.insert_one(data)
- 1045  history
+
     print("MongoDB Inserted ID:", mongo_result.inserted_id)
 
     # Insert into Elasticsearch
