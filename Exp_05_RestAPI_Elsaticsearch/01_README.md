@@ -674,6 +674,73 @@ Open
 ```bash
 nano app.py
 ```
+```python
+from fastapi import FastAPI
+from models import Student
+from database import students
+from elastic import es.py
+ 1029  nano database.py
+app = FastAPI()els.py
+ 1031  nano app.py
+ 1032  uvicorn app:app --reload
+@app.get("/")astic.py
+def home(): elastic.py
+    return {"message": "REST API Server Running"}
+ 1036  sudo systemctl status elasticsearch
+ 1037  uvicorn app:app --reload
+@app.post("/students")
+def add_student(student: Student):students/_search?pretty
+ 1040  nano elastic.py
+    data = student.model_dump()
+ 1042  uvicorn app:app --reload
+    # Insert into MongoDB
+    mongo_result = students.insert_one(data)
+ 1045  history
+    print("MongoDB Inserted ID:", mongo_result.inserted_id)
+
+    # Insert into Elasticsearch
+    es_result = es.index(
+        index="students",
+        document=data
+    )
+
+    print("Elasticsearch Response:", es_result)
+
+    return {
+        "message": "Inserted Successfully",
+        "mongo_id": str(mongo_result.inserted_id),
+        "es_result": es_result["result"]
+    }
+
+
+@app.get("/students")
+def get_students():
+
+    result = []
+
+    for s in students.find({}, {"_id": 0}):
+        result.append(s)
+
+    return result
+
+
+@app.get("/search/{name}")
+def search(name: str):
+
+    query = {
+        "query": {
+            "match": {
+                "name": name
+            }
+        }
+    }
+
+    res = es.search(index="students", body=query)
+
+    return res["hits"]["hits"]
+
+```
+
 
 Paste the FastAPI application code provided in the experiment.
 
