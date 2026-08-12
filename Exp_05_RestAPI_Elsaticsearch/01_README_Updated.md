@@ -868,92 +868,147 @@ python filename.py
 ```
 #################################
 
-# 14. Run Server
+# Step 14 – Run FastAPI Server
 
-```bash
+## Command
+
 uvicorn app:app --reload
-```
 
-Open
+## ✔ Expected Terminal Output
 
-```
+Uvicorn running on http://127.0.0.1:8000  
+Application startup complete.
+
+## 🌐 Open in Browser
+
 http://127.0.0.1:8000/docs
-```
+
+## ✔ Expected Result
+
+- Swagger UI opens
+- Available APIs:
+  - POST /students
+  - GET /students
+  - GET /search/{name}
+
+##  Common Errors & Fix
+
+- ModuleNotFoundError → pip install fastapi uvicorn
+- Port already in use → kill process on port 8000
+- Swagger not opening → ensure server is running
 
 ---
 
-# 15. Test POST
+#  Step 15 – Test POST API
 
-Sample JSON
+Steps:
 
-```json
+1. Open Swagger UI
+2. Click POST /students
+3. Click Try it out
+4. Enter JSON:
+
 {
-  "roll":101,
-  "name":"Rahul",
-  "branch":"Computer",
-  "marks":89
+  "roll": 101,
+  "name": "Rahul",
+  "branch": "Computer",
+  "marks": 89
 }
-```
+
+5. Click Execute
+
+## ✔ Expected Response
+
+{
+  "message": "Student added successfully"
+}
+
+## ❌ Error
+
+422 → JSON format mismatch
 
 ---
 
-# 16. Verify MongoDB
+# ✅ Step 16 – Verify MongoDB
 
-Open MongoDB Compass
+Steps:
 
-```
-college
-```
+1. Open MongoDB Compass
+2. Connect: mongodb://localhost:27017
+3. Open database: college
+4. Open collection: students
 
-↓
+## ✔ Expected Document
 
-```
-students
-```
+{
+  "_id": "...",
+  "roll": 101,
+  "name": "Rahul",
+  "branch": "Computer",
+  "marks": 89
+}
 
-Verify inserted document.
+## ❌ If Not Visible
+
+- Click Refresh
+- Check MongoDB service:
+sudo systemctl status mongod
 
 ---
 
-# 17. Verify Elasticsearch
+# ✅ Step 17 – Verify Elasticsearch
 
-Open
+Open:
 
-```
 http://localhost:9200/students/_search?pretty
-```
 
-Verify indexed document.
+## ✔ Expected Output
+
+Contains student data inside "hits"
+
+## ❌ If Not Working
+
+- Data not indexed
+- Elasticsearch not running
+
+Check:
+
+curl http://localhost:9200
 
 ---
 
-# 18. Test GET
+# ✅ Step 18 – Test GET API
 
-```
 GET /students
-```
+
+## ✔ Expected
+
+Returns all student records
 
 ---
 
-# 19. Test Search
+# ✅ Step 19 – Test Search API
 
-```
 GET /search/Rahul
-```
+
+## ✔ Expected
+
+Returns matching student data
 
 ---
 
-# 20. Common Errors
+# ✅ Step 20 – Final Verification Flow
 
-| Error | Solution |
-|--------|----------|
-| python not recognized | Install Python and add to PATH |
-| ModuleNotFoundError | Install packages using pip |
-| MongoDB connection failed | Start MongoDB Service |
-| localhost:9200 unavailable | Start Elasticsearch |
-| Port 8000 busy | Stop previous server |
+1. Server running
+2. Swagger working
+3. POST success
+4. MongoDB verified
+5. Elasticsearch verified
+6. GET works
+7. Search works
 
 ---
+
 
 # 21. Viva Questions
 
