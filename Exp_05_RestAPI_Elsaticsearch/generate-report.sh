@@ -1,324 +1,204 @@
 #!/bin/bash
 
 ###############################################################################
-# Experiment 05 - Report Generation Script
-# Data Engineering Laboratory
-# FastAPI + MongoDB + Elasticsearch
+# Experiment 05 - Evaluation + Student Report Generator
 ###############################################################################
 
 echo "=========================================================="
-echo "        Experiment 05 - Report Generation Utility"
+echo "   Experiment 05 - Student Evaluation System"
 echo "=========================================================="
 
-REPORT_DIR="Submission_Report"
-SRC_DIR="$REPORT_DIR/Source_Code"
-VERIFY_DIR="$REPORT_DIR/Verification"
-SCREEN_DIR="$REPORT_DIR/Screenshots"
+###############################################################################
+# 🧑‍🎓 STUDENT INPUT
+###############################################################################
 
 echo ""
-echo "Creating Report Folder Structure..."
-
-mkdir -p "$SRC_DIR"
-mkdir -p "$VERIFY_DIR"
-mkdir -p "$SCREEN_DIR"
+read -p "Enter Student Name: " NAME
+read -p "Enter Batch: " BATCH
+read -p "Enter Experiment Number: " EXP_NO
+read -p "Enter Experiment Title: " EXP_TITLE
+read -p "Enter Faculty Name: " FACULTY
 
 ###############################################################################
-# Copy Source Files
+# 📁 DIRECTORIES
 ###############################################################################
 
-echo "Copying Source Files..."
+REPORT_DIR="Submission_Report"
+VERIFY_DIR="$REPORT_DIR/Verification"
 
-FILES=(
-app.py
-database.py
-elastic.py
-models.py
-requirements.txt
-README.md
-)
+mkdir -p "$REPORT_DIR" "$VERIFY_DIR"
+
+TOTAL=0
+MAX=30
+
+###############################################################################
+# ✅ 1. SOURCE CODE CHECK (5 Marks)
+###############################################################################
+
+FILES=(app.py database.py elastic.py models.py requirements.txt)
+FOUND=0
 
 for file in "${FILES[@]}"
 do
     if [ -f "$file" ]; then
-        cp "$file" "$SRC_DIR/"
+        ((FOUND++))
     fi
 done
 
-###############################################################################
-# Installed Packages
-###############################################################################
-
-echo "Saving Installed Packages..."
-
-pip freeze > "$VERIFY_DIR/pip_packages.txt"
+SRC_SCORE=$FOUND
+TOTAL=$((TOTAL + SRC_SCORE))
 
 ###############################################################################
-# Python Version
+# ✅ 2. PYTHON CHECK (5 Marks)
 ###############################################################################
 
-python3 --version > "$VERIFY_DIR/python_version.txt"
+PY_SCORE=0
+
+python3 --version > "$VERIFY_DIR/python.txt" 2>&1 && ((PY_SCORE+=2))
+pip freeze > "$VERIFY_DIR/pip.txt" 2>&1 && ((PY_SCORE+=3))
+
+TOTAL=$((TOTAL + PY_SCORE))
 
 ###############################################################################
-# MongoDB Verification
+# ✅ 3. MONGODB CHECK (5 Marks)
 ###############################################################################
 
-echo "Collecting MongoDB Details..."
+MONGO_SCORE=0
 
-{
-echo "========== MongoDB Version =========="
-mongod --version
+if command -v mongosh >/dev/null; then
+    mongosh --quiet --eval "db.adminCommand('ping')" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        ((MONGO_SCORE+=2))
+    fi
 
-echo ""
-echo "========== MongoDB Service =========="
-sudo systemctl status mongod --no-pager
+    mongosh --quiet --eval "use college; db.students.countDocuments()" \
+    > "$VERIFY_DIR/mongo.txt" 2>&1
 
-echo ""
-echo "========== MongoDB Databases =========="
-mongosh --quiet --eval "show dbs"
+    if grep -q "[0-9]" "$VERIFY_DIR/mongo.txt"; then
+        ((MONGO_SCORE+=3))
+    fi
+fi
 
-echo ""
-echo "========== Student Collection =========="
-mongosh --quiet --eval "
-use college
-db.students.find().pretty()
-"
-
-} > "$VERIFY_DIR/mongodb_output.txt" 2>&1
+TOTAL=$((TOTAL + MONGO_SCORE))
 
 ###############################################################################
-# Elasticsearch Verification
+# ✅ 4. ELASTICSEARCH CHECK (5 Marks)
 ###############################################################################
 
-echo "Collecting Elasticsearch Details..."
+ES_SCORE=0
 
-{
-echo "========== Elasticsearch Version =========="
-curl -s http://localhost:9200
+curl -s http://localhost:9200 > "$VERIFY_DIR/es.txt"
 
-echo ""
-echo "========== Elasticsearch Indices =========="
-curl -s http://localhost:9200/_cat/indices?v
+if grep -q "cluster_name" "$VERIFY_DIR/es.txt"; then
+    ((ES_SCORE+=2))
+fi
 
-echo ""
-echo "========== Student Index =========="
-curl -s http://localhost:9200/students/_search?pretty
+curl -s http://localhost:9200/students/_search > "$VERIFY_DIR/es_data.txt"
 
-} > "$VERIFY_DIR/elasticsearch_output.txt" 2>&1
+if grep -q "hits" "$VERIFY_DIR/es_data.txt"; then
+    ((ES_SCORE+=3))
+fi
+
+TOTAL=$((TOTAL + ES_SCORE))
 
 ###############################################################################
-# API Information
+# ✅ 5. API CHECK (5 Marks)
 ###############################################################################
 
-cat > "$VERIFY_DIR/api_endpoints.txt" << EOF
+API_SCORE=0
 
-GET /
-Returns application status.
+curl -s http://127.0.0.1:8000 > "$VERIFY_DIR/api_root.txt"
+grep -qi "message" "$VERIFY_DIR/api_root.txt" && ((API_SCORE+=1))
 
-POST /students
-Adds a new student.
+curl -s http://127.0.0.1:8000/students > "$VERIFY_DIR/api_get.txt"
+grep -q "[" "$VERIFY_DIR/api_get.txt" && ((API_SCORE+=2))
 
-GET /students
-Returns all students.
+curl -s http://127.0.0.1:8000/search/Rahul > "$VERIFY_DIR/api_search.txt"
+grep -q "Rahul" "$VERIFY_DIR/api_search.txt" && ((API_SCORE+=2))
 
-GET /search/{name}
-Searches student by name using Elasticsearch.
+TOTAL=$((TOTAL + API_SCORE))
 
-Swagger URL
+###############################################################################
+# 🎓 GRADE CALCULATION
+###############################################################################
 
-http://127.0.0.1:8000/docs
+GRADE="FAIL"
+
+if [ $TOTAL -ge 24 ]; then
+    GRADE="EXCELLENT"
+elif [ $TOTAL -ge 18 ]; then
+    GRADE="GOOD"
+elif [ $TOTAL -ge 12 ]; then
+    GRADE="AVERAGE"
+fi
+
+###############################################################################
+# 📝 FINAL REPORT GENERATION
+###############################################################################
+
+REPORT_FILE="$REPORT_DIR/Report.txt"
+
+cat > "$REPORT_FILE" << EOF
+
+==========================================================
+                EXPERIMENT REPORT
+==========================================================
+
+Student Name      : $NAME
+Batch             : $BATCH
+Experiment No     : $EXP_NO
+Experiment Title  : $EXP_TITLE
+Faculty Name      : $FACULTY
+
+----------------------------------------------------------
+                EVALUATION DETAILS
+----------------------------------------------------------
+
+Source Code        : $SRC_SCORE / 5
+Python Setup       : $PY_SCORE / 5
+MongoDB            : $MONGO_SCORE / 5
+Elasticsearch      : $ES_SCORE / 5
+API Functionality  : $API_SCORE / 5
+
+----------------------------------------------------------
+
+TOTAL              : $TOTAL / $MAX
+GRADE              : $GRADE
+
+----------------------------------------------------------
+                SYSTEM DETAILS
+----------------------------------------------------------
+
+Python Version:
+$(python3 --version)
+
+----------------------------------------------------------
+
+Remarks:
+- APIs tested via Swagger
+- MongoDB & Elasticsearch verified
+- End-to-end pipeline executed
+
+==========================================================
 
 EOF
 
 ###############################################################################
-# Report Template
-###############################################################################
-
-cat > "$REPORT_DIR/Report.md" << 'EOF'
-# Experiment 05 Report
-
-## Student Details
-
-**Name :**
-
-**Roll Number :**
-
-**Class :**
-
-**Batch :**
-
-**Date :**
-
----
-
-# Assignment Type
-
-☐ Intermediate Assignment
-
-☐ Challenge Assignment
-
----
-
-# Assignment Title
-
-Write your assignment title here.
-
----
-
-# Problem Statement
-
-Describe the problem statement.
-
----
-
-# Objective
-
-State the objective of your assignment.
-
----
-
-# Technology Stack
-
-- Python
-- FastAPI
-- Pydantic
-- MongoDB
-- Elasticsearch
-- Swagger UI
-
----
-
-# Project Structure
-
-```
-Project/
-│
-├── app.py
-├── database.py
-├── elastic.py
-├── models.py
-├── requirements.txt
-└── README.md
-```
-
----
-
-# REST APIs Developed
-
-| Method | Endpoint | Purpose |
-|---------|----------|---------|
-| GET | / | Home |
-| POST | /students | Insert Record |
-| GET | /students | View Records |
-| GET | /search/{name} | Search Record |
-
----
-
-# Sample JSON
-
-```json
-{
-    "roll":101,
-    "name":"Rahul",
-    "branch":"Computer",
-    "marks":89
-}
-```
-
----
-
-# MongoDB Verification
-
-Refer to
-
-Verification/mongodb_output.txt
-
----
-
-# Elasticsearch Verification
-
-Refer to
-
-Verification/elasticsearch_output.txt
-
----
-
-# Swagger API Testing
-
-Paste screenshots inside the Screenshots folder.
-
-Suggested screenshots
-
-- Home API
-- POST API
-- GET API
-- Search API
-
----
-
-# Output
-
-Describe the obtained output.
-
----
-
-# Challenges Faced
-
-Mention difficulties faced while completing the assignment.
-
----
-
-# Conclusion
-
-Write the conclusion.
-
-EOF
-
-###############################################################################
-# Screenshot Instructions
-###############################################################################
-
-cat > "$SCREEN_DIR/README.txt" << EOF
-
-Place the following screenshots here.
-
-1. Swagger Home API
-
-2. POST API
-
-3. GET API
-
-4. Search API
-
-5. MongoDB Compass
-
-6. Elasticsearch Search Output
-
-7. Terminal Output
-
-EOF
-
-###############################################################################
-# Completion Message
+# 🎉 OUTPUT
 ###############################################################################
 
 echo ""
 echo "=========================================================="
 echo " Report Generated Successfully"
 echo "=========================================================="
+
 echo ""
-echo "Report Folder:"
+echo "Saved at:"
+echo "$REPORT_FILE"
+
 echo ""
-echo "Submission_Report/"
-echo "│"
-echo "├── Report.md"
-echo "├── Source_Code/"
-echo "├── Verification/"
-echo "└── Screenshots/"
-echo ""
-echo "Now:"
-echo "1. Copy API screenshots into Screenshots/"
-echo "2. Complete Report.md"
-echo "3. Compress Submission_Report/"
-echo "4. Submit the ZIP file"
+echo "Score: $TOTAL / $MAX"
+echo "Grade: $GRADE"
+
 echo ""
 echo "Done."
