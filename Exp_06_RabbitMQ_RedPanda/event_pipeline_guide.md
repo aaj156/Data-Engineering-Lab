@@ -362,6 +362,12 @@ Login:
   - Publish rate → Producer sending
   - Deliver rate → Consumer receiving  
   → Should be continuously moving
+---
+<img width="1027" height="539" alt="3" src="https://github.com/user-attachments/assets/53543b6a-2120-44f6-b947-689d8579411c" />
+<img width="1400" height="547" alt="2" src="https://github.com/user-attachments/assets/4557832f-eedd-474b-9c6f-aacefb133f2a" />
+<img width="1400" height="1016" alt="1" src="https://github.com/user-attachments/assets/cd0a23f2-5919-4920-a5b2-475d9199bbb2" />
+<img width="1560" height="1042" alt="5" src="https://github.com/user-attachments/assets/52c1c10d-3bb4-42aa-9b51-d927be31d9ce" />
+<img width="1080" height="841" alt="4" src="https://github.com/user-attachments/assets/6fe76ed3-3e37-4731-9245-27beb86b4dc7" />
 
 ---
 
@@ -418,6 +424,14 @@ Queues → sensor_queue
 → Should be continuous
 
 ---
+<img width="1199" height="738" alt="6" src="https://github.com/user-attachments/assets/25e540af-f2c3-4b40-92fb-a402be09ad73" />
+<img width="1066" height="785" alt="9" src="https://github.com/user-attachments/assets/8016f073-fe75-46a3-8107-8cd81d1cf884" />
+<img width="864" height="534" alt="8" src="https://github.com/user-attachments/assets/fe2613bf-c95b-49ec-9870-45884ab1744e" />
+<img width="1132" height="489" alt="7" src="https://github.com/user-attachments/assets/cb3dbbac-a44b-4bf0-bfba-65ef2775a2ad" />
+
+
+---
+
 
 ## 🔷 STEP 5: Live Debug Testing
 
