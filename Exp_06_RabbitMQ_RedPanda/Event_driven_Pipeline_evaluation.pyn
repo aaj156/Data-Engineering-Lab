@@ -1,0 +1,178 @@
+import os
+from datetime import datetime
+
+# -----------------------------
+# CONFIG
+# -----------------------------
+TOTAL_MARKS = 50
+
+rubric = {
+    "setup": 10,
+    "pipeline_run": 10,
+    "scenario_testing": 15,
+    "observations": 10,
+    "debugging": 5
+}
+
+# -----------------------------
+# 🔷 STUDENT DETAILS INPUT
+# -----------------------------
+print("\n🔷 Enter Student Details\n")
+
+student_info = {
+    "name": input("Student Name: "),
+    "roll_no": input("Roll No: "),
+    "exp_no": input("Experiment No: "),
+    "exp_title": input("Experiment Title: "),
+    "faculty": input("Faculty Name: "),
+    "date_performance": input("Date of Performance (YYYY-MM-DD): "),
+    "date_submission": input("Date of Submission (YYYY-MM-DD): ")
+}
+
+# -----------------------------
+# 🔷 PERFORMANCE INPUT
+# -----------------------------
+print("\n🔷 Enter Performance (y/n)\n")
+
+def get_bool(prompt):
+    return input(prompt + " (y/n): ").lower() == 'y'
+
+student = {
+    "setup_completed": get_bool("Setup Completed"),
+    "pipeline_running": get_bool("Pipeline Running"),
+    "scenario1": get_bool("Scenario 1 (Normal Flow)"),
+    "scenario2": get_bool("Scenario 2 (Alert)"),
+    "scenario3": get_bool("Scenario 3 (Multi-device)"),
+    "scenario4": get_bool("Scenario 4 (DLQ)"),
+    "scenario5": get_bool("Scenario 5 (Stress Test)"),
+    "observations_correct": get_bool("Observations Correct"),
+    "debugging_attempted": get_bool("Debugging Attempted")
+}
+
+# -----------------------------
+# EVALUATION LOGIC
+# -----------------------------
+score = 0
+feedback = []
+
+# Setup
+if student["setup_completed"]:
+    score += rubric["setup"]
+else:
+    feedback.append("❌ Setup incomplete")
+
+# Pipeline
+if student["pipeline_running"]:
+    score += rubric["pipeline_run"]
+else:
+    feedback.append("❌ Pipeline not running")
+
+# Scenarios
+scenario_count = sum([
+    student["scenario1"],
+    student["scenario2"],
+    student["scenario3"],
+    student["scenario4"],
+    student["scenario5"]
+])
+
+scenario_score = (scenario_count / 5) * rubric["scenario_testing"]
+score += scenario_score
+
+if scenario_count < 5:
+    feedback.append(f"⚠️ Only {scenario_count}/5 scenarios tested")
+
+# Observations
+if student["observations_correct"]:
+    score += rubric["observations"]
+else:
+    feedback.append("❌ Observations not proper")
+
+# Debugging
+if student["debugging_attempted"]:
+    score += rubric["debugging"]
+else:
+    feedback.append("⚠️ Debugging not attempted")
+
+# -----------------------------
+# GRADE
+# -----------------------------
+if score >= 45:
+    grade = "A+"
+elif score >= 40:
+    grade = "A"
+elif score >= 30:
+    grade = "B"
+elif score >= 20:
+    grade = "C"
+else:
+    grade = "D"
+
+# -----------------------------
+# 🔷 REPORT CONTENT
+# -----------------------------
+report = f"""
+============================================================
+📊 STUDENT EVALUATION REPORT
+============================================================
+
+Student Name        : {student_info['name']}
+Roll No             : {student_info['roll_no']}
+Experiment No       : {student_info['exp_no']}
+Experiment Title    : {student_info['exp_title']}
+Faculty             : {student_info['faculty']}
+Date of Performance : {student_info['date_performance']}
+Date of Submission  : {student_info['date_submission']}
+
+------------------------------------------------------------
+📌 PERFORMANCE SUMMARY
+------------------------------------------------------------
+Setup Completed            : {student['setup_completed']}
+Pipeline Running           : {student['pipeline_running']}
+Scenario 1 (Normal Flow)   : {student['scenario1']}
+Scenario 2 (Alert)         : {student['scenario2']}
+Scenario 3 (Multi-device)  : {student['scenario3']}
+Scenario 4 (DLQ)           : {student['scenario4']}
+Scenario 5 (Stress Test)   : {student['scenario5']}
+Observations Correct       : {student['observations_correct']}
+Debugging Attempted        : {student['debugging_attempted']}
+
+------------------------------------------------------------
+🎯 TOTAL SCORE : {round(score,2)} / {TOTAL_MARKS}
+🏆 GRADE       : {grade}
+
+------------------------------------------------------------
+📌 FEEDBACK
+------------------------------------------------------------
+"""
+
+if feedback:
+    for f in feedback:
+        report += f"- {f}\n"
+else:
+    report += "✅ Excellent Performance\n"
+
+report += f"""
+============================================================
+Generated On: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+============================================================
+"""
+
+# -----------------------------
+# 🔷 SAVE REPORT
+# -----------------------------
+report_dir = "report"
+os.makedirs(report_dir, exist_ok=True)
+
+filename = f"{student_info['roll_no']}_Event_drive_Pipeline_report.txt"
+filepath = os.path.join(report_dir, filename)
+
+with open(filepath, "w") as f:
+    f.write(report)
+
+# -----------------------------
+# OUTPUT
+# -----------------------------
+print("\n📊 REPORT GENERATED SUCCESSFULLY")
+print(f"📁 Saved at: {filepath}")
+print("\n" + report)
