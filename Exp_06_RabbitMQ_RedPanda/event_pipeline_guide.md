@@ -428,6 +428,7 @@ Queues → sensor_queue
 <img width="1066" height="785" alt="9" src="https://github.com/user-attachments/assets/8016f073-fe75-46a3-8107-8cd81d1cf884" />
 <img width="864" height="534" alt="8" src="https://github.com/user-attachments/assets/fe2613bf-c95b-49ec-9870-45884ab1744e" />
 <img width="1132" height="489" alt="7" src="https://github.com/user-attachments/assets/cb3dbbac-a44b-4bf0-bfba-65ef2775a2ad" />
+<img width="991" height="349" alt="10" src="https://github.com/user-attachments/assets/35b7f916-f6bf-4bed-b3c8-21ea7c4eecd9" />
 
 
 ---
