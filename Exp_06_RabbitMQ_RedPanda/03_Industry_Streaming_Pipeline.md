@@ -365,12 +365,166 @@ CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0
 
 ## 📄 `dashboard/app.py`
 
-(Complete dashboard code included below)
-
 ```python
-# [FULL STREAMLIT DASHBOARD CODE — SAME AS PROVIDED, CLEANED & INDENTED]
+import streamlit as st
+import psycopg2
+import pandas as pd
+from datetime import datetime
+import plotly.graph_objects as go
 
-# (Code retained exactly as your version, already correct — no changes required)
+# -------------------------------
+# PAGE CONFIG
+# -------------------------------
+st.set_page_config(
+    page_title="Streaming Dashboard",
+    layout="wide",
+    page_icon="📊"
+)
+
+# -------------------------------
+# CUSTOM CSS (Metric Styling)
+# -------------------------------
+st.markdown("""
+    <style>
+    .stMetric {
+        background-color: #111;
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("📊 Real-Time Streaming Dashboard")
+
+# -------------------------------
+# AUTO REFRESH
+# -------------------------------
+st.markdown("<meta http-equiv='refresh' content='2'>", unsafe_allow_html=True)
+
+# -------------------------------
+# DB CONNECTION
+# -------------------------------
+@st.cache_resource
+def get_connection():
+    return psycopg2.connect(
+        host="postgres",
+        database="streaming_db",
+        user="admin",
+        password="admin"
+    )
+
+conn = get_connection()
+
+# -------------------------------
+# LOAD DATA
+# -------------------------------
+@st.cache_data(ttl=2)
+def load_data():
+    df = pd.read_sql("SELECT * FROM sensor_data ORDER BY id DESC LIMIT 200", conn)
+    alerts = pd.read_sql("SELECT * FROM alerts ORDER BY id DESC LIMIT 10", conn)
+    return df, alerts
+
+df, alerts = load_data()
+
+# -------------------------------
+# SIDEBAR
+# -------------------------------
+st.sidebar.header("⚙️ Controls")
+threshold = st.sidebar.slider("Alert Threshold", 30, 50, 35)
+
+# -------------------------------
+# METRICS
+# -------------------------------
+st.subheader("📈 Key Metrics")
+
+col1, col2, col3, col4 = st.columns(4)
+
+if not df.empty:
+    latest_temp = df.iloc[0]['temperature']
+    avg_temp = df['temperature'].mean()
+
+    col1.metric("Total Records", len(df))
+    col2.metric("Latest Temp", round(latest_temp, 2))
+    col3.metric("Avg Temp", round(avg_temp, 2))
+    col4.metric("Max Temp", round(df['temperature'].max(), 2))
+
+# -------------------------------
+# 🔥 GAUGE CHART
+# -------------------------------
+st.subheader("🌡️ Live Temperature Gauge")
+
+if not df.empty:
+    gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=latest_temp,
+        title={'text': "Current Temperature"},
+        gauge={
+            'axis': {'range': [0, 50]},
+            'bar': {'color': "red" if latest_temp > threshold else "green"},
+            'steps': [
+                {'range': [0, threshold], 'color': "#00cc96"},
+                {'range': [threshold, 50], 'color': "#ff4b4b"}
+            ],
+        }
+    ))
+
+    st.plotly_chart(gauge, use_container_width=True)
+
+# -------------------------------
+# 📊 TIME SERIES CHART
+# -------------------------------
+st.subheader("📊 Temperature Trend")
+
+if not df.empty:
+    df_sorted = df.sort_values(by="created_at")
+    st.line_chart(df_sorted.set_index("created_at")["temperature"])
+
+# -------------------------------
+# 🔥 MULTI-DEVICE COMPARISON
+# -------------------------------
+st.subheader("🖥️ Multi-Device Comparison")
+
+if not df.empty:
+    multi_df = pd.read_sql("""
+        SELECT device_id, AVG(temperature) as avg_temp
+        FROM sensor_data
+        GROUP BY device_id
+    """, conn)
+
+    st.bar_chart(multi_df.set_index("device_id"))
+
+# -------------------------------
+# 🚨 LIVE ALERT NOTIFICATIONS
+# -------------------------------
+st.subheader("🚨 Live Alerts")
+
+if not alerts.empty:
+
+    latest_alert = alerts.iloc[0]
+
+    # 🔥 Toast Notification
+    st.toast(f"🚨 ALERT: {latest_alert['temperature']}°C", icon="🚨")
+
+    # 🔥 Banner Alert
+    st.error(f"🚨 High Temperature Detected: {latest_alert['temperature']}°C")
+
+    # Table with highlight
+    def highlight(row):
+        if row["temperature"] > threshold:
+            return ['background-color: #ff4b4b'] * len(row)
+        return [''] * len(row)
+
+    st.dataframe(alerts.style.apply(highlight, axis=1), use_container_width=True)
+
+else:
+    st.success("✅ No active alerts")
+
+# -------------------------------
+# FOOTER
+# -------------------------------
+st.markdown("---")
+st.caption(f"Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 ```
 
 ---
