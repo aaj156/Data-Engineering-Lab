@@ -29,25 +29,6 @@ touch consumer/consumer.py consumer/alerts.py consumer/requirements.txt consumer
 touch dashboard/app.py dashboard/requirements.txt dashboard/Dockerfile
 ```
 
-# 🚀 Industry-Grade Event-Driven Streaming Pipeline
-
-## Complete Step-by-Step Setup Guide (Final Clean Flow)
-
----
-
-## 📌 Overview
-
-This guide provides a **complete, clean, executable flow** to build and run an **event-driven streaming pipeline** using:
-
-* Redpanda (Kafka)
-* PostgreSQL
-* Python (Producer & Consumer)
-* Streamlit Dashboard
-* Grafana Monitoring
-* Email & SMS Alerts
-
----
-
 # 🔷 🔧 PHASE 1: DOCKER SETUP (CORE INFRA)
 
 ## 📄 `docker-compose.yml`
