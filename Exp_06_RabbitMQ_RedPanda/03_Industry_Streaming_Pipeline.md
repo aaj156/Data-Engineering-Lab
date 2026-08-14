@@ -723,8 +723,57 @@ http://localhost:3000
 
 ### ✅ Step 1: Add Data Source
 
-Go to:
-**Connections → Data Sources → PostgreSQL**
+📍 Navigation Path
+
+👉 Left Sidebar → Connections (🔌 icon)
+👉 Click → Data Sources
+👉 Click → Add data source
+
+📍 Select Database
+
+👉 Choose PostgreSQL
+
+📍 Fill Details (VERY IMPORTANT)
+🔹 Connection Section
+Host URL: postgres:5432
+Database: streaming_db
+User: admin
+Password: admin
+🔹 Final Step
+
+👉 Scroll down and click:
+
+Save & Test
+✅ Expected Output
+
+You should see a success message:
+
+Data source is working
+🔴 If it fails (Troubleshooting)
+Error	Reason
+Connection refused	PostgreSQL container not running
+Timeout	Wrong host (use postgres, not localhost)
+Auth error	Incorrect username or password
+🔧 Quick Debug Commands
+
+Run in terminal to verify containers:
+
+docker ps
+
+Check PostgreSQL logs:
+
+docker logs postgres
+🎯 Important Note
+
+👉 Always use:
+
+Host = postgres
+
+❌ Do NOT use:
+
+localhost
+
+Because Grafana and PostgreSQL run inside the same Docker network
 
 Enter:
 
