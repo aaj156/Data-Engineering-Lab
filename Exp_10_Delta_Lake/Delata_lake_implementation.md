@@ -1,8 +1,8 @@
-# 🧪 ** Implementing Delta Lake Features in a Lakehouse Environment (Real Dataset)**
+# 🧪 Implementing Delta Lake Features in a Lakehouse Environment (Real Dataset)
 
 ---
 
-# 🎯 **Objective**
+# 🎯 Objective
 
 To implement and understand Delta Lake features including:
 
