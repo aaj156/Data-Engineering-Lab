@@ -1,4 +1,4 @@
-# 🧪 **LAB MANUAL: Implementing Delta Lake Features in a Lakehouse Environment (Real Dataset)**
+# 🧪 ** Implementing Delta Lake Features in a Lakehouse Environment (Real Dataset)**
 
 ---
 
